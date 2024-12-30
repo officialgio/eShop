@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using GameStore.Api.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -63,7 +64,8 @@ app.MapGet("/games/{id}", (Guid id) =>
 
     return game is null ? Results.NotFound() : Results.Ok(
         new GameDetailsDto(
-            game.Id, game.Name, 
+            game.Id, 
+            game.Name, 
             game.Genre.Id, 
             game.Price, 
             game.ReleasedDate, 
@@ -72,16 +74,42 @@ app.MapGet("/games/{id}", (Guid id) =>
 }).WithName(GetGameEndpointName);
 
 // POST /games
-app.MapPost("/games", (Game game) =>
+app.MapPost("/games", (CreateGameDto gameDto) =>
 {
-    game.Id = Guid.NewGuid();
+    var genre = genres.Find(genre => genre.Id == gameDto.GenreId);
+
+    if (genre is null)
+    {
+        return Results.BadRequest("Invalid Genre Id");
+    }
+
+    // Transfer DTO to your Data Model
+    var game = new Game
+    {
+        Id = Guid.NewGuid(),
+        Name = gameDto.Name,
+        Genre = genre,
+        Price = gameDto.Price,
+        ReleasedDate = gameDto.ReleaseDate,
+        Description = gameDto.Description
+    };
+    
     games.Add(game);
 
-    return Results.CreatedAtRoute(GetGameEndpointName, new { id = game.Id }, game);
+    return Results.CreatedAtRoute(
+        GetGameEndpointName, 
+        new { id = game.Id }, 
+        new GameDetailsDto(
+            game.Id, 
+            game.Name, 
+            game.Genre.Id, 
+            game.Price, 
+            game.ReleasedDate, 
+            game.Description));
 }).WithParameterValidation();
 
 // PUT /games/{id}
-app.MapPut("/games/{id}", (Guid id, Game updatedGame) =>
+app.MapPut("/games/{id}", (Guid id, UpdateGameDto gameDto) =>
 {
     var existingGame = games.Find(game => game.Id == id);
 
@@ -89,11 +117,19 @@ app.MapPut("/games/{id}", (Guid id, Game updatedGame) =>
     {
         Results.NotFound();
     }
+    
+    var genre = genres.Find(genre => genre.Id == gameDto.GenreId);
 
-    existingGame.Name = updatedGame.Name;
-    existingGame.Genre = updatedGame.Genre;
-    existingGame.Price = updatedGame.Price;
-    existingGame.ReleasedDate = updatedGame.ReleasedDate;
+    if (genre is null)
+    {
+        return Results.BadRequest("Invalid Genre Id");
+    }
+    
+    existingGame.Name = gameDto.Name;
+    existingGame.Genre = genre;
+    existingGame.Price = gameDto.Price;
+    existingGame.ReleasedDate = gameDto.ReleaseDate;
+    existingGame.Description = gameDto.Description;
 
     return Results.NoContent();
 }).WithParameterValidation();
@@ -125,5 +161,19 @@ public record GameSummaryDto(
     string Genre, 
     decimal Price, 
     DateOnly ReleaseDate);
+
+public record CreateGameDto(
+    [Required] [StringLength(50)] string Name,
+    Guid GenreId,
+    [Range(1, 100)] decimal Price,
+    DateOnly ReleaseDate,
+    [Required] [StringLength(500)] string Description);
+
+public record UpdateGameDto(
+    [Required] [StringLength(50)] string Name,
+    Guid GenreId,
+    [Range(1, 100)] decimal Price,
+    DateOnly ReleaseDate,
+    [Required] [StringLength(500)] string Description);
 
 public record GenreDto(Guid Id, string Name);
