@@ -19,9 +19,7 @@ public class Game
     /// <summary>
     /// The genre of the game
     /// </summary>
-    [Required]
-    [StringLength(20)]
-    public required string Genre { get; set; }
+    public required Genre Genre { get; set; }
 
     /// <summary>
     /// The price of the game
@@ -33,5 +31,9 @@ public class Game
     /// When the game was released
     /// </summary>
     public DateOnly ReleasedDate { get; set; }
-    
+
+    /// <summary>
+    /// THe description of the game
+    /// </summary>
+    public required string Description { get; set; }
 }

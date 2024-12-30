@@ -1,7 +1,7 @@
 GET http://localhost:5082/games
 
 ###
-GET http://localhost:5082/games/4d1fc29d-dfb5-4e27-b66b-187a06819103
+GET http://localhost:5082/games/92c0ebc1-f6eb-4b04-b601-5c2854eae78f
 
 ###
 POST http://localhost:5082/games
@@ -27,3 +27,7 @@ Content-Type: application/json
 
 ### DELETE
 DELETE http://localhost:5082/games/a72aea6f-5fe7-411b-bb8e-e96e25e4cbd1
+
+
+### GET
+http://localhost:5082/genres

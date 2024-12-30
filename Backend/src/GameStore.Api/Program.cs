@@ -6,43 +6,69 @@ var app = builder.Build();
 
 const string GetGameEndpointName = "GetGame";
 
-List<Game> games = new List<Game>()
+List<Genre> genres = new()
+{
+    new Genre { Id = new Guid("490520c3-1e6c-47e9-9780-62b2cbcecd78"), Name = "Fighting" },
+    new Genre { Id = new Guid("6d5586c7-120f-4ef9-b19a-cae6939a0046"), Name = "Kids and Family" },
+    new Genre { Id = new Guid("5b0d1f04-d405-4260-a2e8-6d03a38adfc1"), Name = "Racing" },
+    new Genre { Id = new Guid("6364e3b4-6934-479c-b37d-02cfcedaf964"), Name = "Roleplaying" },
+    new Genre { Id = new Guid("e5025957-7352-40c6-b36f-43e2711991a6"), Name = "Sports" }
+};
+
+List<Game> games = new()
 {
     new Game
     {
         Id = Guid.NewGuid(),
         Name = "Street Fighter II",
-        Genre = "Fighting",
+        Genre = genres[0], 
         Price = 19.99m,
-        ReleasedDate = new DateOnly(1992, 7, 15)
+        ReleasedDate = new DateOnly(1992, 7, 15),
+        Description = "A revolutionary fighting game that introduced iconic characters and intense one-on-one battles, setting the standard for arcade fighting games."
     },
     new Game
     {
         Id = Guid.NewGuid(),
         Name = "Final Fantasy XIV",
-        Genre = "Roleplaying",
+        Genre = genres[3],
         Price = 59.99m,
-        ReleasedDate = new DateOnly(2010, 9, 30)
+        ReleasedDate = new DateOnly(2010, 9, 30),
+        Description = "An expansive MMORPG set in the fantasy world of Eorzea, offering rich storytelling, deep customization, and epic multiplayer adventures."
     },
     new Game
     {
         Id = Guid.NewGuid(),
         Name = "FIFA 2023",
-        Genre = "Sports",
+        Genre = genres[4],
         Price = 69.99m,
-        ReleasedDate = new DateOnly(2022, 9, 27)
+        ReleasedDate = new DateOnly(2022, 9, 27),
+        Description = "The latest installment in the popular football simulation series, featuring enhanced gameplay, updated rosters, and realistic visuals."
     }
 };
 
+
 // GET /games
-app.MapGet("/games", () => games);
+app.MapGet("/games", () => games.Select(game => new GameSummaryDto(
+        game.Id,
+        game.Name,
+        game.Genre.Name,
+        game.Price,
+        game.ReleasedDate
+)));
 
 // GET /games/{id}
 app.MapGet("/games/{id}", (Guid id) =>
 {
     var game = games.Find(game => game.Id == id);
 
-    return game is null ? Results.NotFound() : Results.Ok(game);
+    return game is null ? Results.NotFound() : Results.Ok(
+        new GameDetailsDto(
+            game.Id, game.Name, 
+            game.Genre.Id, 
+            game.Price, 
+            game.ReleasedDate, 
+            game.Description)
+        );
 }).WithName(GetGameEndpointName);
 
 // POST /games
@@ -80,4 +106,24 @@ app.MapDelete("/games/{id}", (Guid id) =>
     return Results.NoContent();
 });
 
+app.MapGet("/genres", 
+    () => genres.Select(genre => new GenreDto(genre.Id, genre.Name)));
+
 app.Run();
+
+public record GameDetailsDto(
+    Guid Id, 
+    string Name, 
+    Guid GenreId, 
+    decimal Price, 
+    DateOnly ReleaseDate, 
+    string Description);
+
+public record GameSummaryDto(
+    Guid Id, 
+    string Name, 
+    string Genre, 
+    decimal Price, 
+    DateOnly ReleaseDate);
+
+public record GenreDto(Guid Id, string Name);
