@@ -1,7 +1,7 @@
 GET http://localhost:5082/games
 
 ###
-GET http://localhost:5082/games/bfdef058-f345-417c-9ccf-35e6fc4d4aa1
+GET http://localhost:5082/games/c0430db3-3bc1-414e-a093-aa0fd2b69617
 
 ###
 POST http://localhost:5082/games
@@ -16,7 +16,7 @@ Content-Type: application/json
 }
 
 ###
-PUT http://localhost:5082/games/4d1fc29d-dfb5-4e27-b66b-187a06819103
+PUT http://localhost:5082/games/6b3b8494-6a35-4fe4-b044-721b8b5cb260
 Content-Type: application/json
 
 {

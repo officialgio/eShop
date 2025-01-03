@@ -86,7 +86,6 @@ app.MapPost("/games", (CreateGameDto gameDto) =>
     // Transfer DTO to your Data Model
     var game = new Game
     {
-        Id = Guid.NewGuid(),
         Name = gameDto.Name,
         Genre = genre,
         Price = gameDto.Price,
