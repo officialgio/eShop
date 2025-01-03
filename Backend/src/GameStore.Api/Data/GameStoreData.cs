@@ -15,7 +15,7 @@ public class GameStoreData
 
     private readonly List<Game> games;
 
-    public GameStoreData(List<Game> games)
+    public GameStoreData()
     {
         this.games = new()
         {
